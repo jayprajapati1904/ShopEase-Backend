@@ -1,9 +1,9 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser';
-import authRoutes from './routes/userAuthRoutes.js';
-import paymentRoutes from './routes/paymentRoutes.js';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/userAuthRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 dotenv.config();
 
@@ -11,14 +11,19 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow the frontend's origin
+    credentials: true, // Allow cookies/credentials
+  })
+);
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/payment', paymentRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/payment", paymentRoutes);
 
-app.get('/', (req, res) => {
-  res.send('PostgreSQL Neon User + Payment Backend running');
+app.get("/", (req, res) => {
+  res.send("PostgreSQL Neon User + Payment Backend running");
 });
 
 app.listen(PORT, () => {
