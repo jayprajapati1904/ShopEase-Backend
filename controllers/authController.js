@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
 import dotenv from 'dotenv';
+ // or your neon db connection
 
 dotenv.config();
 
@@ -81,18 +82,29 @@ export const signin = async (req, res) => {
   }
 };
 
-export const getProfile = (req, res) => {
-  const user = req.user; // Added by protect middleware after verifying token
 
-  if (!user) {
-    return res.status(401).json({ message: 'Unauthorized' });
+export const getProfile = async (req, res) => {
+  try {
+    const { id } = req.user;
+
+    const result = await pool.query(
+      "SELECT id, username, email FROM users WHERE id = $1",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = result.rows[0];
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ message: "Server error" });
   }
-
-  res.status(200).json({
-    message: 'Profile fetched successfully',
-    user,
-  });
 };
+
 
 
 export const logout = (req, res) => {
